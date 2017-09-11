@@ -14,7 +14,7 @@ env.reset()
 env.render()
 
 # Set learning parameters
-learning_rate = .1
+learning_rate = 0.1
 epsilon = 0.1
 # Gamma is the discounted future reward parameter
 gamma = .99
@@ -36,7 +36,7 @@ model = QLeaningApprox(env.observation_space.n, env.action_space.n)
 
 # Loss and Optimizer
 criterion = nn.MSELoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 # Train the Model
 for epoch in range(num_episodes):
