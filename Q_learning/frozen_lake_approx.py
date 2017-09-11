@@ -14,19 +14,25 @@ env.reset()
 env.render()
 
 # Set learning parameters
-learning_rate = 0.1
+learning_rate = 0.8
 epsilon = 0.1
 # Gamma is the discounted future reward parameter
 gamma = .99
 num_episodes = 2000
 # Create lists to contain total rewards and steps per episode
 rList = []
+jList = []
 
 
 class QLeaningApprox(nn.Module):
     def __init__(self, input_size, output_size):
         super(QLeaningApprox, self).__init__()
-        self.linear = nn.Linear(input_size, output_size)
+        self.linear = nn.Linear(input_size, output_size, bias=False)
+
+        # Weight initialization
+        #for m in self.modules():
+            #if isinstance(m, nn.Linear):
+                #m.weight.data.uniform_(0, 0.01)
 
     def forward(self, x):
         linear_out = self.linear(x)
@@ -36,16 +42,19 @@ model = QLeaningApprox(env.observation_space.n, env.action_space.n)
 
 # Loss and Optimizer
 criterion = nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
 # Train the Model
 for epoch in range(num_episodes):
     # Reset environment and get first new observation(Start state)
     curr_state = env.reset()
     rewards_episode = 0
+    j = 0
+
 
     # Play until the end of the game (one full episode)
-    while True:
+    while j < 99:
+        j += 1
         # Convert numpy array to torch Variable
         input_curr_state = Variable(torch.from_numpy(np.identity(16)[curr_state:curr_state+1])).float()
         value_all_Q = model(input_curr_state)
@@ -66,7 +75,7 @@ for epoch in range(num_episodes):
         # Obtain maxQ' and set our target value for chosen action.
         maxQ1 = np.max(Q1)
         targetQ = value_all_Q.data.numpy()
-        targetQ[0, action] = reward + gamma * maxQ1
+        targetQ[0, action] = reward + (gamma * maxQ1)
         targetQ = Variable(torch.from_numpy(targetQ))
 
         # Forward + Backward + Optimize
@@ -84,6 +93,7 @@ for epoch in range(num_episodes):
             break
     # Append sum of all rewards on this game
     rList.append(rewards_episode)
+    jList.append(j)
 
 print ("Percent of succesful episodes: " + str(sum(rList)/num_episodes) + "%")
 
@@ -93,4 +103,6 @@ torch.save(model.state_dict(), 'model.pkl')
 
 # Plot some stuff
 plt.plot(rList)
+plt.show()
+plt.plot(jList)
 plt.show()
