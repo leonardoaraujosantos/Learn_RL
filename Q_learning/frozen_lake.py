@@ -12,6 +12,7 @@ env.render()
 
 # Set learning parameters
 lr = .8
+# Gamma is the discounted future reward parameter
 gamma = .95
 num_episodes = 20000
 
@@ -27,7 +28,7 @@ rList = []
 for episode in range(num_episodes):
     # Reset environment and get first new observation(Start state)
     curr_state = env.reset()
-    rAll = 0
+    rewards_episode = 0
 
     # Play until the end of the game (one full episode)
     while True:
@@ -35,15 +36,16 @@ for episode in range(num_episodes):
         a = np.argmax(Q[curr_state, :] + np.random.randn(1, env.action_space.n) * (1. / (episode + 1)))
 
         # Do some action, then get reward and states
-        next_state, r, done, _ = env.step(a)
-        # Bellman equation to update Q-Table
-        Q[curr_state, a] = Q[curr_state, a] + lr * (r + gamma * np.max(Q[next_state, :]) - Q[curr_state, a])
-        rAll += r
+        next_state, reward, done, info = env.step(a)
+        # Bellman equation to update Q-Table (Value iteration update)
+        Q[curr_state, a] += lr * (reward + gamma * np.max(Q[next_state, :]) - Q[curr_state, a])
+
+        rewards_episode += reward
         curr_state = next_state
         if done:
             break
     # Append sum of all rewards on this game
-    rList.append(rAll)
+    rList.append(rewards_episode)
 
 print("Score over time: " + str(sum(rList)/num_episodes))
 print("Final Q-Table Values")
