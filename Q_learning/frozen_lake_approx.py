@@ -15,13 +15,14 @@ env.render()
 
 # Set learning parameters
 learning_rate = 0.8
-epsilon = 0.1
+epsilon = 1.0
 # Gamma is the discounted future reward parameter
 gamma = .99
 num_episodes = 2000
 # Create lists to contain total rewards and steps per episode
-rList = []
-jList = []
+rewards_per_episode_list = []
+actions_per_episode_list = []
+epsilonList = []
 
 
 class QLeaningApprox(nn.Module):
@@ -30,9 +31,9 @@ class QLeaningApprox(nn.Module):
         self.linear = nn.Linear(input_size, output_size, bias=False)
 
         # Weight initialization
-        #for m in self.modules():
-            #if isinstance(m, nn.Linear):
-                #m.weight.data.uniform_(0, 0.01)
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                m.weight.data.uniform_(0, 0.01)
 
     def forward(self, x):
         linear_out = self.linear(x)
@@ -58,9 +59,12 @@ for epoch in range(num_episodes):
         # Convert numpy array to torch Variable
         input_curr_state = Variable(torch.from_numpy(np.identity(16)[curr_state:curr_state+1])).float()
         value_all_Q = model(input_curr_state)
+
+        # Get the current action with biggest value is the greedy action
         _, action = torch.max(value_all_Q, 1)
         action = action.data.numpy()[0]
 
+        # Deal with the exploration(random) vs exploitation(greedy) issue
         if np.random.rand(1) < epsilon:
             action = env.action_space.sample()
 
@@ -90,19 +94,27 @@ for epoch in range(num_episodes):
         if done:
             # Reduce chance of random action as we train the model.
             epsilon = 1. / ((epoch / 50) + 10)
+            epsilonList.append(epsilon)
             break
     # Append sum of all rewards on this game
-    rList.append(rewards_episode)
-    jList.append(j)
+    rewards_per_episode_list.append(rewards_episode)
+    actions_per_episode_list.append(j)
 
-print ("Percent of succesful episodes: " + str(sum(rList)/num_episodes) + "%")
+print ("Percent of succesful episodes: " + str(sum(rewards_per_episode_list) / num_episodes) + "%")
 
 # Save the Model
 print('Saving model')
 torch.save(model.state_dict(), 'model.pkl')
 
 # Plot some stuff
-plt.plot(rList)
+plt.plot(rewards_per_episode_list)
+plt.title('Rewards per episode ')
 plt.show()
-plt.plot(jList)
+
+plt.title('Actions per episode ')
+plt.plot(actions_per_episode_list)
+plt.show()
+
+plt.plot(epsilonList)
+plt.title('Epsilon decay')
 plt.show()
