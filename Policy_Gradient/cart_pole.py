@@ -69,15 +69,26 @@ def finish_episode():
     R = 0
     rewards = []
     for r in policy.rewards[::-1]:
+        # Apply some discount on rewards
         R = r + args.gamma * R
         rewards.insert(0, R)
     rewards = torch.Tensor(rewards)
+
+    # Normalize the rewards
     rewards = (rewards - rewards.mean()) / (rewards.std() + np.finfo(np.float32).eps)
+
     for action, r in zip(policy.saved_actions, rewards):
+        # Action is a pytorch Variable
+        # https://discuss.pytorch.org/t/you-can-only-reinforce-a-stochastic-function-once/1782
+        # https://discuss.pytorch.org/t/what-is-action-reinforce-r-doing-actually/1294
         action.reinforce(r)
+
+    # Make good actions more probable (Update weights)
     optimizer.zero_grad()
     autograd.backward(policy.saved_actions, [None for _ in policy.saved_actions])
     optimizer.step()
+
+    # Delete rewards and saved actions from episode
     del policy.rewards[:]
     del policy.saved_actions[:]
 
@@ -99,6 +110,7 @@ for i_episode in count(1):
             env.render()
 
         # Add rewards to the policy agent list
+        # Now need to update our agent with more than one experience at a time.
         policy.rewards.append(reward)
 
         # Stop if game is done
@@ -108,6 +120,7 @@ for i_episode in count(1):
 
     finish_episode()
 
+    # Filter the reward signal (Just for debugging purpose)
     running_reward = running_reward * 0.99 + t * 0.01
 
     # Print from time to time
