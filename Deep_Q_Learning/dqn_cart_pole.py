@@ -1,3 +1,8 @@
+# References:
+# https://github.com/jingweiz/pytorch-rl
+# https://medium.com/intuitionmachine/pytorch-dynamic-computational-graphs-and-modular-deep-learning-7e7f89f18d1
+# https://github.com/ShangtongZhang/reinforcement-learning-an-introduction
+# https://github.com/awjuliani/DeepRL-Agents
 import gym
 import math
 import random
