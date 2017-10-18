@@ -23,7 +23,11 @@ class GridActions:
         return ['up', 'down', 'left', 'right']
 
     @staticmethod
-    def action(action_string):
+    def all_orientation():
+        return [ GridActions.up(), GridActions.down(), GridActions.left(), GridActions.right() ]
+
+    @staticmethod
+    def str_to_action(action_string):
         if action_string == 'up':
             return GridActions.up()
         elif action_string == 'down':
@@ -33,4 +37,5 @@ class GridActions:
         elif action_string == 'right':
             return GridActions.right
         else:
-            return None
+            # Do Nothing
+            return 0, 0
