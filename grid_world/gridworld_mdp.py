@@ -10,7 +10,7 @@ import grid_samples
 # Import the class GridActions from the folder utils module grid_actions.py
 from grid_actions import GridActions
 from utils.mdp import MarkovDecisionProcess
-import GridWorld.grid_cell as grid_cell
+import grid_world.grid_cell as grid_cell
 
 import operator
 # TODO: Change to normal numpy
