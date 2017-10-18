@@ -4,11 +4,11 @@
 class GridActions:
     @staticmethod
     def up():
-        return 1, 0
+        return -1, 0
 
     @staticmethod
     def down():
-        return -1, 0
+        return 1, 0
 
     @staticmethod
     def right():

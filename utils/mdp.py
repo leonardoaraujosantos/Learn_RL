@@ -3,13 +3,13 @@
 # https://stackoverflow.com/questions/3570796/why-use-abstract-base-classes-in-python
 # http://cs.stanford.edu/people/karpathy/reinforcejs/gridworld_td.html
 # http://aima.cs.berkeley.edu/python/mdp.html
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod
 
 
 class MarkovDecisionProcess(object):
     __metaclass__ = ABCMeta
 
-    @abstractproperty
+    @property
     def states(self):
         """
         Return a list of all states in the MDP.
@@ -17,7 +17,7 @@ class MarkovDecisionProcess(object):
         """
         raise NotImplementedError("Please Implement this method")
 
-    @abstractproperty
+    @property
     def start_state(self):
         """
         Return the start state of the MDP.
