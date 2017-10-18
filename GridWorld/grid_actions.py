@@ -39,3 +39,17 @@ class GridActions:
         else:
             # Do Nothing
             return 0, 0
+
+    @staticmethod
+    def action_to_str(action):
+        if action == GridActions.up():
+            return 'up'
+        elif action == GridActions.down():
+            return 'down'
+        elif action == GridActions.left():
+            return 'left'
+        elif action == GridActions.right():
+            return 'right'
+        else:
+            # Do Nothing
+            return 'None'

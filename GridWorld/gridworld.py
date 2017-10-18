@@ -11,7 +11,10 @@ import grid_samples
 from grid_actions import GridActions
 from utils.mdp import MarkovDecisionProcess
 import GridWorld.grid_cell as grid_cell
+
 import operator
+# TODO: Change to normal numpy
+from utils.arg_max_min import *
 
 
 class GridWorld(MarkovDecisionProcess):
@@ -21,7 +24,11 @@ class GridWorld(MarkovDecisionProcess):
         self._cols = len(grid_str[0])
         self._states = set()
         self._reward = {}
+
+        # Think about future (Conservative)
         self._gamma = 0.9
+        # Don't care about future (Greedy)
+        #self._gamma = 0.1
 
         # Populate 2d list of cells
         self._grid = [[0 for _ in range(self._cols)] for _ in range(self._rows)]
@@ -138,6 +145,28 @@ def value_iteration(mdp, epsilon=0.001):
         if delta < epsilon * (1 - gamma) / gamma:
             return V
 
+
+def best_policy(mdp, V):
+    """
+        Given the MDP and the utility(value) function U, get the best policy
+        (By choosing the action on each state that guide us to the biggest expected value)
+    """
+    pi = {}
+    # For each state, chose the action that bring us to the biggest expected value
+    for s in mdp.states:
+        pi[s] = argmax(mdp.possible_actions(s), lambda a:expected_value(a, s, V, mdp))
+    return pi
+
+
+# On RL expected value and expected utility are the same.
+# Just return the sum of every possible next value (V[next_state] * probability of this state) for a given state/action
+def expected_value(action, state, V, mdp):
+    "The expected utility of doing a in state s, according to the MDP and V."
+    # mdp.T(state, action) will return a list of probabilities and next states available if you take
+    # an action at state s
+    return sum([prob * V[next_state] for (prob, next_state) in mdp.T(state, action)])
+
+
 if __name__ == "__main__":
     print('Simple gridworld example')
     grid_string = grid_samples.get_book_grid()
@@ -153,4 +182,8 @@ if __name__ == "__main__":
 
     # Run Value iteration
     value_mdp = value_iteration(grid_world)
+    policy = best_policy(grid_world, value_mdp)
     print('Value:',value_mdp)
+    print('Policy:')
+    for st in grid_world.states:
+        print('\tState:', st, 'action:', GridActions.action_to_str(policy[st]))
