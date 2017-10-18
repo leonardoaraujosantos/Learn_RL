@@ -3,36 +3,36 @@
 # https://stackoverflow.com/questions/3570796/why-use-abstract-base-classes-in-python
 # http://cs.stanford.edu/people/karpathy/reinforcejs/gridworld_td.html
 # http://aima.cs.berkeley.edu/python/mdp.html
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta, abstractmethod, abstractproperty
 
 
 class MarkovDecisionProcess(object):
     __metaclass__ = ABCMeta
 
-    @abstractmethod
-    def get_states(self):
+    @abstractproperty
+    def states(self):
         """
         Return a list of all states in the MDP.
         Not generally possible for large MDPs.
         """
-        pass
+        raise NotImplementedError("Please Implement this method")
 
-    @abstractmethod
-    def get_start_state(self):
+    @abstractproperty
+    def start_state(self):
         """
         Return the start state of the MDP.
         """
-        pass
+        raise NotImplementedError("Please Implement this method")
 
     @abstractmethod
-    def get_possible_actions(self, state):
+    def possible_actions(self, state):
         """
         Return list of possible actions from 'state'.
         """
-        pass
+        raise NotImplementedError("Please Implement this method")
 
     @abstractmethod
-    def get_transition_states_and_probabilities(self, state, action):
+    def T(self, state, action):
         """
         Returns list of (nextState, prob) pairs
         representing the states reachable
@@ -43,16 +43,16 @@ class MarkovDecisionProcess(object):
         learning in general, we do not know these
         probabilities nor do we directly model them.
         """
-        pass
+        raise NotImplementedError("Please Implement this method")
 
     @abstractmethod
-    def get_reward(self, state, action, nextState):
+    def R(self, state):
         """
         Get the reward for the state, action, nextState transition.
 
         Not available in reinforcement learning.
         """
-        pass
+        raise NotImplementedError("Please Implement this method")
 
     @abstractmethod
     def is_terminal(self, state):
@@ -63,5 +63,5 @@ class MarkovDecisionProcess(object):
         state as having a self-loop action 'pass' with zero reward; the formulations
         are equivalent.
         """
-        pass
+        raise NotImplementedError("Please Implement this method")
 

@@ -31,11 +31,11 @@ class GridActions:
         if action_string == 'up':
             return GridActions.up()
         elif action_string == 'down':
-            return GridActions.down
+            return GridActions.down()
         elif action_string == 'left':
-            return GridActions.left
+            return GridActions.left()
         elif action_string == 'right':
-            return GridActions.right
+            return GridActions.right()
         else:
             # Do Nothing
             return 0, 0

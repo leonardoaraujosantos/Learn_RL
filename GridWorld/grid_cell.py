@@ -5,6 +5,8 @@ class GridCell:
     def __init__(self, cell_type):
         # On this particular example only terminal states have reward
         self._reward = 0
+        self._is_terminal = False
+        self._is_start = False
         if cell_type == '#':
             self._can_walk = False
         elif cell_type == ' ' or cell_type == 'S' or cell_type == +1 or cell_type == -1:
