@@ -6,13 +6,15 @@
 # https://www.programiz.com/python-programming/property
 # https://stackoverflow.com/questions/13539968/how-can-i-find-the-dimensions-of-a-matrix-in-python
 
-import grid_samples
+from grid_world import grid_samples
 # Import the class GridActions from the folder utils module grid_actions.py
-from grid_actions import GridActions
+from grid_world.grid_actions import GridActions
 from utils.mdp import MarkovDecisionProcess
 import grid_world.grid_cell as grid_cell
 
 import operator
+import random
+
 # TODO: Change to normal numpy
 from utils.arg_max_min import *
 
@@ -167,6 +169,37 @@ def expected_value(action, state, V, mdp):
     return sum([prob * V[next_state] for (prob, next_state) in mdp.T(state, action)])
 
 
+def policy_iteration(mdp):
+
+    V = dict([(s, 0) for s in mdp.states])
+
+    # Start with random policy
+    pi = dict([(s, random.choice(mdp.possible_actions(s))) for s in mdp.states])
+    while True:
+        V = policy_evaluation(pi, V, mdp)
+        unchanged = True
+        # For each state
+        for s in mdp.states:
+            # Greedly choose the action with biggest expected value
+            a = argmax(mdp.possible_actions(s), lambda a: expected_value(a,s,V,mdp))
+            if a != pi[s]:
+                pi[s] = a
+                unchanged = False
+        if unchanged:
+            return pi
+
+
+def policy_evaluation(policy, V, mdp, k=20):
+    """Calculate the value function following a policy"""
+    R, T, gamma = mdp.R, mdp.T, mdp.gamma
+    # For horizon k
+    for i in range(k):
+        # For each state
+        for s in mdp.states:
+            V[s] = R(s) + gamma * sum([p * V[s] for (p, s1) in T(s, policy[s])])
+    return V
+
+
 if __name__ == "__main__":
     print('Simple gridworld example')
     grid_string = grid_samples.get_book_grid()
@@ -182,8 +215,14 @@ if __name__ == "__main__":
 
     # Run Value iteration
     value_mdp = value_iteration(grid_world)
-    policy = best_policy(grid_world, value_mdp)
+    policy_val = best_policy(grid_world, value_mdp)
     print('Value:',value_mdp)
-    print('Policy:')
+    print('Policy(From Value iteration):')
     for st in grid_world.states:
-        print('\tState:', st, 'action:', GridActions.action_to_str(policy[st]))
+        print('\tState:', st, 'action:', GridActions.action_to_str(policy_val[st]))
+
+    # Run Policy iteration
+    policy_iter = policy_iteration(grid_world)
+    print('Policy(From Policy iteration):')
+    for st in grid_world.states:
+        print('\tState:', st, 'action:', GridActions.action_to_str(policy_iter[st]))
