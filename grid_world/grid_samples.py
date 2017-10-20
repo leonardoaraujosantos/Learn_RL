@@ -5,6 +5,17 @@ def get_book_grid():
             ['S',' ',' ',' ']]
     return grid
 
+#
+#sequential_decision_environment = GridMDP([[-0.04, -0.04, -0.04, +1],
+#                                          [-0.04, None, -0.04, -1],
+#                                         [-0.04, -0.04, -0.04, -0.04]],
+#                                       terminals=[(3, 2), (3, 1)])
+
+#sequential_decision_environment = GridMDP([[0, 0, 0, +1],
+#                                           [0, None, 0, -1],
+#                                           [0, 0, 0, 0]],
+#                                          terminals=[(3, 2), (3, 1)])
+
 
 def get_maze_grid():
     grid = [[' ',' ',' ',+1],
