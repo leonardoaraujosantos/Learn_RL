@@ -1,5 +1,6 @@
 # Vanilla Policy gradient based on Karpathy blog (Pong game)
 # inspired by karpathy's gist.github.com/karpathy/a4166c7fe253700972fcbc77e4ea32c5
+# https://github.com/mrahtz/tensorflow-rl-pong
 import numpy as np
 import gym
 import tensorflow as tf
@@ -7,8 +8,9 @@ import tensorflow as tf
 # hyperparameters
 n_obs = 80 * 80  # dimensionality of observations
 h = 200  # number of hidden layer neurons
+batch_size = 10 # every how many episodes to do a param update?
 n_actions = 3  # number of available actions
-learning_rate = 1e-3
+learning_rate = 1e-4
 gamma = .99  # discount factor for reward
 decay = 0.99  # decay rate for RMSProp gradients
 save_path = 'models/pong.ckpt'
@@ -74,7 +76,8 @@ tf_discounted_epr /= tf.sqrt(tf_variance + 1e-6)
 # tf optimizer op
 tf_aprob = tf_policy_forward(tf_x)
 loss = tf.nn.l2_loss(tf_y - tf_aprob)
-optimizer = tf.train.RMSPropOptimizer(learning_rate, decay=decay)
+#optimizer = tf.train.RMSPropOptimizer(learning_rate, decay=decay)
+optimizer = tf.train.AdamOptimizer(learning_rate)
 tf_grads = optimizer.compute_gradients(loss, var_list=tf.trainable_variables(), grad_loss=tf_discounted_epr)
 train_op = optimizer.apply_gradients(tf_grads)
 
@@ -127,13 +130,16 @@ while True:
     rs.append(reward)
 
     if done:
-        print('Finished episode: %d' %(episode_number))
         # update running reward
         running_reward = reward_sum if running_reward is None else running_reward * 0.99 + reward_sum * 0.01
 
-        # parameter update
+        # perform rmsprop parameter update every batch_size episodes
         feed = {tf_x: np.vstack(xs), tf_epr: np.vstack(rs), tf_y: np.vstack(ys)}
         _ = sess.run(train_op, feed)
+        #if episode_number % batch_size == 0:
+            # parameter update
+        #    feed = {tf_x: np.vstack(xs), tf_epr: np.vstack(rs), tf_y: np.vstack(ys)}
+        #    _ = sess.run(train_op, feed)
 
         # print progress console
         if episode_number % 10 == 0:
